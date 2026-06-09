@@ -2,6 +2,17 @@ apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
 
+apply plugin: "com.google.gms.google-services"
+apply plugin: "com.google.firebase.crashlytics"
+apply plugin: "com.google.android.libraries.mapsplatform.secrets-gradle-plugin"
+
+def localPropertiesFile = rootProject.file("local.properties")
+def localProperties = new Properties()
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withInputStream { localProperties.load(it) }
+}
+def mapsApiKey = localProperties.getProperty("MAPS_API_KEY", "")
+
 /**
  * This is the configuration block to customize your React Native Android app.
  * By default you don't need to apply any configuration, just uncomment the lines you need.
@@ -75,16 +86,10 @@ def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
 android {
     ndkVersion rootProject.ext.ndkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
-    compileSdk rootProject.ext.compileSdkVersion
+    compileSdk = rootProject.ext.compileSdkVersion
 
     namespace "com.autobeaconreactnativesample"
-    defaultConfig {
-        applicationId "com.autobeaconreactnativesample"
-        minSdkVersion rootProject.ext.minSdkVersion
-        targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
-    }
+
     signingConfigs {
         debug {
             storeFile file('debug.keystore')
@@ -93,6 +98,21 @@ android {
             keyPassword 'android'
         }
     }
+
+    defaultConfig {
+        applicationId "com.autobeaconreactnativesample"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode 1
+        versionName "1.0"
+
+        multiDexEnabled true
+
+        manifestPlaceholders = [
+            MAPS_API_KEY: mapsApiKey
+        ]
+    }
+
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
@@ -101,9 +121,31 @@ android {
             // Caution! In production, you need to generate your own keystore file.
             // see https://reactnative.dev/docs/signed-apk-android.
             signingConfig signingConfigs.debug
-            minifyEnabled enableProguardInReleaseBuilds
-            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            minifyEnabled false
+            shrinkResources false
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
         }
+    }
+
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+
+        jniLibs {
+            useLegacyPackaging = true
+
+            pickFirst 'lib/x86/libc++_shared.so'
+            pickFirst 'lib/x86_64/libc++_shared.so'
+            pickFirst 'lib/armeabi-v7a/libc++_shared.so'
+            pickFirst 'lib/arm64-v8a/libc++_shared.so'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+        coreLibraryDesugaringEnabled = true
     }
 }
 
@@ -116,4 +158,8 @@ dependencies {
     } else {
         implementation jscFlavor
     }
+
+    coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:2.1.5"
 }
+
+apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"

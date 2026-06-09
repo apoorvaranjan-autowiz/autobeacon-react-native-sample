@@ -1,75 +1,179 @@
-# OSX
-#
+# ============================================================================
+# OS files
+# ============================================================================
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
 
-# Xcode
-#
-build/
-*.pbxuser
-!default.pbxuser
-*.mode1v3
-!default.mode1v3
-*.mode2v3
-!default.mode2v3
-*.perspectivev3
-!default.perspectivev3
-xcuserdata
-*.xccheckout
-*.moved-aside
-DerivedData
-*.hmap
-*.ipa
-*.xcuserstate
-**/.xcode.env.local
-
-# Android/IntelliJ
-#
-build/
-.idea
-.gradle
-local.properties
+# ============================================================================
+# Editor / IDE
+# ============================================================================
+.idea/
+.vscode/
 *.iml
-*.hprof
-.cxx/
-*.keystore
-!debug.keystore
-.kotlin/
+*.ipr
+*.iws
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-*
+.history/
 
-# node.js
-#
+# ============================================================================
+# Node.js / npm / Yarn
+# ============================================================================
 node_modules/
-npm-debug.log
-yarn-error.log
+package-lock.json
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.npm/
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+*.tgz
 
-# fastlane
-#
-# It is recommended to not store the screenshots in the git repo. Instead, use fastlane to re-generate the
-# screenshots whenever they are needed.
-# For more information about the recommended setup visit:
-# https://docs.fastlane.tools/best-practices/source-control/
+# ============================================================================
+# TypeScript
+# ============================================================================
+*.tsbuildinfo
+.tscache/
 
-**/fastlane/report.xml
-**/fastlane/Preview.html
-**/fastlane/screenshots
-**/fastlane/test_output
+# ============================================================================
+# Test / coverage
+# ============================================================================
+coverage/
+.nyc_output/
+junit.xml
+*.lcov
 
-# Bundle artifact
-*.jsbundle
+# ============================================================================
+# Turborepo
+# ============================================================================
+.turbo/
 
-# Ruby / CocoaPods
-**/Pods/
-/vendor/bundle/
+# ============================================================================
+# Environment files (NEVER commit secrets)
+# ============================================================================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
 
-# Temporary files created by Metro to check the health of the file watcher
-.metro-health-check*
+# ============================================================================
+# Logs
+# ============================================================================
+logs/
+*.log
 
-# testing
-/coverage
+# ============================================================================
+# ANDROID
+# ============================================================================
 
-# Yarn
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/sdks
-!.yarn/versions
+# Gradle build outputs
+android/build/
+android/app/build/
+android/.gradle/
+android/.cxx/
+android/captures/
+android/.kotlin/
+
+# Local config (machine-specific paths)
+android/local.properties
+
+# Gradle wrapper bits we don't want (the wrapper itself in android/ should stay if present)
+android/gradle/wrapper/gradle-wrapper.properties.bak
+
+# Generated codegen output (rebuilt every build)
+android/generated/
+
+# Android Studio
+*.iml
+.cxx/
+local.properties
+
+# Keystore files (NEVER commit production keystores)
+*.jks
+*.keystore
+!debug.keystore                 # debug keystore is fine to commit if present
+
+# APK / AAB output
+*.apk
+*.aab
+*.ap_
+
+# Profiling
+*.hprof
+
+# ============================================================================
+# iOS
+# ============================================================================
+
+# Xcode build output
+ios/build/
+ios/DerivedData/
+build/
+DerivedData/
+
+# CocoaPods
+ios/Pods/
+ios/Podfile.lock                # for LIBRARIES only; in an app, you'd commit this
+
+# Xcode user-specific files
+xcuserdata/
+*.xcuserstate
+*.xcuserdatad/
+project.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+*.xcworkspace/xcuserdata/
+*.xcscmblueprint
+*.xccheckout
+
+# Swift Package Manager
+.swiftpm/
+Package.resolved
+
+# Fastlane (if you use it later)
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output
+
+# ============================================================================
+# DO NOT IGNORE — explicit allow-list for files that match broader patterns
+# above but MUST be committed because they're part of the shipped library
+# ============================================================================
+
+# Your AutoBeacon Android AAR (binary artifact shipped with the library)
+!android/libs/
+!android/libs/*.aar
+
+# Your AutoBeacon iOS framework (binary artifact shipped with the library)
+!ios/AutoBeaconSDK.framework/
+!ios/AutoBeaconSDK.framework/**
+
+# ProGuard rules ship with the library
+!android/proguard-rules.pro
+
+# ============================================================================
+# Misc
+# ============================================================================
+*.bak
+*.tmp
+.tmp/
+.cache/
+.npmrc

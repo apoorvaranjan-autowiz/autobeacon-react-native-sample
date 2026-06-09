@@ -1,0 +1,120 @@
+{
+  "project_info": {
+    "project_number": "641450042098",
+    "project_id": "autobeaconreactnative",
+    "storage_bucket": "autobeaconreactnative.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:641450042098:android:251f7c56c8b2156681266b",
+        "android_client_info": {
+          "package_name": "autobeaconreactnative.example"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBD-RXNTq2tQwY5ZNE3XtVyAYPnPiB9Tio"
+        },
+        {
+          "current_key": "AIzaSyDyVW0KYz6llWoQIvzUHGEGBE8nCfVyI3k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:641450042098:android:7fce1210e44a066a81266b",
+        "android_client_info": {
+          "package_name": "com.autobeaconreactnative"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBD-RXNTq2tQwY5ZNE3XtVyAYPnPiB9Tio"
+        },
+        {
+          "current_key": "AIzaSyDyVW0KYz6llWoQIvzUHGEGBE8nCfVyI3k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:641450042098:android:7a57b2c13ab5ddcb81266b",
+        "android_client_info": {
+          "package_name": "com.autobeaconreactnativedemo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBD-RXNTq2tQwY5ZNE3XtVyAYPnPiB9Tio"
+        },
+        {
+          "current_key": "AIzaSyDyVW0KYz6llWoQIvzUHGEGBE8nCfVyI3k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:641450042098:android:d54bb0bee529a1b981266b",
+        "android_client_info": {
+          "package_name": "com.autobeaconreactnativesample"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBD-RXNTq2tQwY5ZNE3XtVyAYPnPiB9Tio"
+        },
+        {
+          "current_key": "AIzaSyDyVW0KYz6llWoQIvzUHGEGBE8nCfVyI3k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:641450042098:android:8c683f2fca4e2d5881266b",
+        "android_client_info": {
+          "package_name": "com.autobeaconreactnativesdkwithui"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBD-RXNTq2tQwY5ZNE3XtVyAYPnPiB9Tio"
+        },
+        {
+          "current_key": "AIzaSyDyVW0KYz6llWoQIvzUHGEGBE8nCfVyI3k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
