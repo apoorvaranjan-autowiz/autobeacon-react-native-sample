@@ -6,13 +6,6 @@ apply plugin: "com.google.gms.google-services"
 apply plugin: "com.google.firebase.crashlytics"
 apply plugin: "com.google.android.libraries.mapsplatform.secrets-gradle-plugin"
 
-def localPropertiesFile = rootProject.file("local.properties")
-def localProperties = new Properties()
-if (localPropertiesFile.exists()) {
-    localPropertiesFile.withInputStream { localProperties.load(it) }
-}
-def mapsApiKey = localProperties.getProperty("MAPS_API_KEY", "")
-
 /**
  * This is the configuration block to customize your React Native Android app.
  * By default you don't need to apply any configuration, just uncomment the lines you need.
@@ -107,10 +100,6 @@ android {
         versionName "1.0"
 
         multiDexEnabled true
-
-        manifestPlaceholders = [
-            MAPS_API_KEY: mapsApiKey
-        ]
     }
 
     buildTypes {
@@ -143,9 +132,9 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
         coreLibraryDesugaringEnabled = true
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 

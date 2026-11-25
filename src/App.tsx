@@ -25,7 +25,7 @@ import { DrivingAlertsScreen } from '@autobeacon/autobeacon-react-native'
 import COLORS from './const/colors'
 
 // Initializing Geocoder with your Google Maps API key
-Geocoder.init('AIzaSyCwZldLVcXnQqWEn6RBy0T41wM_dEGHOXw')
+Geocoder.init('AIzaSyAq5vmfRKcAsAKeAVQ2qhQh01dN4LFqlC4')
 
 const Stack = createNativeStackNavigator()
 
