@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react';
 import {
   PermissionsAndroid,
   ScrollView,
@@ -9,23 +9,134 @@ import {
   StyleSheet,
   ActivityIndicator,
   Platform,
-} from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import * as Progress from 'react-native-progress'
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import * as Progress from 'react-native-progress';
 import {
   check,
   openSettings,
   PERMISSIONS,
   request,
-} from 'react-native-permissions'
-import AsyncStorage from '@react-native-async-storage/async-storage'
+} from 'react-native-permissions';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import COLORS from '../../const/colors'
+import COLORS from '../../const/colors';
 
-import { AutoBeacon } from '@autobeacon/autobeacon-react-native'
+import { AutoBeacon } from '@autobeacon/autobeacon-react-native';
+
+const getItemAsync = async (key: string): Promise<string> => {
+  const value = await AsyncStorage.getItem(key);
+  return value ?? '';
+};
+
+const requestPermissionsForAndroid = async () => {
+  const fineLocationPermissionStatus = await PermissionsAndroid.request(
+    PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
+  );
+
+  if (fineLocationPermissionStatus === 'granted') {
+    AutoBeacon.setDeviceLocation().catch(() => {});
+
+    const backgroundLocationPermissionStatus = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.ACCESS_BACKGROUND_LOCATION
+    );
+
+    if (backgroundLocationPermissionStatus === 'granted') {
+      const activityRecognitionPermissionStatus =
+        await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACTIVITY_RECOGNITION
+        );
+
+      if (activityRecognitionPermissionStatus === 'granted') {
+        const bluetoothConnectPermissionStatus =
+          await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT
+          );
+        const bluetoothScanPermissionStatus = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN
+        );
+
+        if (
+          bluetoothConnectPermissionStatus === 'granted' &&
+          bluetoothScanPermissionStatus === 'granted'
+        ) {
+          AutoBeacon.requestBatteryOptimizationPermission().then(() => {});
+
+          AutoBeacon.statusOfBatteryOptimization().then(async (res) => {
+            if (res === true) {
+              const notificationPermissionStatus =
+                await PermissionsAndroid.request(
+                  PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
+                );
+
+              if (notificationPermissionStatus === 'granted') {
+                AutoBeacon.startTripTracking();
+              }
+            } else {
+              Alert.alert(
+                'Battery optimization permission needed!',
+                'Permission to disable battery optimization is required for trip tracking. Please disable battery optimization from settings.'
+              );
+            }
+          });
+        }
+      } else {
+        Alert.alert(
+          'Physical activity permission needed!',
+          'Permission to use the device physical activity or motion is required for trip tracking. Please enable physical activity permissions from settings.'
+        );
+      }
+    } else {
+      Alert.alert(
+        'Background location permission needed!',
+        'Permission to use the device location in background is required for trip tracking. Please enable background location permissions from settings.'
+      );
+    }
+  } else {
+    Alert.alert(
+      'Location permission needed!',
+      'Permission to use the device location is required for trip tracking. Please enable location permissions from settings.'
+    );
+  }
+};
+
+const requestPermissionsForIos = async () => {
+  await request(PERMISSIONS.IOS.MOTION);
+
+  await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
+  let locationPermissionStatus = await check(
+    PERMISSIONS.IOS.LOCATION_WHEN_IN_USE
+  );
+
+  if (locationPermissionStatus === 'granted') {
+    await request(PERMISSIONS.IOS.LOCATION_ALWAYS);
+  } else {
+    openSettings();
+  }
+
+  await request(PERMISSIONS.IOS.MOTION);
+
+  let motionPermissionStatus = await check(PERMISSIONS.IOS.MOTION);
+  let locationPermissionState = await check(PERMISSIONS.IOS.LOCATION_ALWAYS);
+
+  if (
+    motionPermissionStatus !== 'granted' ||
+    locationPermissionState !== 'granted'
+  ) {
+    openSettings();
+  } else if (
+    motionPermissionStatus === 'granted' &&
+    locationPermissionState === 'granted'
+  ) {
+    console.log(
+      'calling  startTripTracking method as all permissions are given'
+    );
+    AutoBeacon.startTripTracking();
+  }
+};
 
 const TripSummaryScreen = ({ navigation }: any) => {
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
 
   const [tripSummary, setTripSummary] = useState({
     response: '',
@@ -33,130 +144,19 @@ const TripSummaryScreen = ({ navigation }: any) => {
     safeDrivingScore: 0,
     drivingDistance: 0,
     message: '',
-  })
+  });
   const [tripSummaryCardVisibility, setTripSummaryCardVisibility] =
-    useState(false)
+    useState(false);
 
-  const getItemAsync = async (key: string): Promise<string> => {
-    const value = await AsyncStorage.getItem(key)
-    return value ?? ''
-  }
-
-  const requestPermissionsForAndroid = async () => {
-    const fineLocationPermissionStatus = await PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
-    )
-
-    if (fineLocationPermissionStatus === 'granted') {
-      const backgroundLocationPermissionStatus =
-        await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.ACCESS_BACKGROUND_LOCATION
-        )
-
-      if (backgroundLocationPermissionStatus === 'granted') {
-        const activityRecognitionPermissionStatus =
-          await PermissionsAndroid.request(
-            PermissionsAndroid.PERMISSIONS.ACTIVITY_RECOGNITION
-          )
-
-        if (activityRecognitionPermissionStatus === 'granted') {
-          const bluetoothConnectPermissionStatus =
-            await PermissionsAndroid.request(
-              PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT
-            )
-          const bluetoothScanPermissionStatus =
-            await PermissionsAndroid.request(
-              PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN
-            )
-
-          if (
-            bluetoothConnectPermissionStatus === 'granted' &&
-            bluetoothScanPermissionStatus === 'granted'
-          ) {
-            AutoBeacon.requestBatteryOptimizationPermission().then(() => {})
-
-            AutoBeacon.statusOfBatteryOptimization().then(async (res) => {
-              if (res === true) {
-                const notificationPermissionStatus =
-                  await PermissionsAndroid.request(
-                    PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
-                  )
-
-                if (notificationPermissionStatus === 'granted') {
-                  AutoBeacon.startTripTracking()
-                }
-              } else {
-                Alert.alert(
-                  'Battery optimization permission needed!',
-                  'Permission to disable battery optimization is required for trip tracking. Please disable battery optimization from settings.'
-                )
-              }
-            })
-          }
-        } else {
-          Alert.alert(
-            'Physical activity permission needed!',
-            'Permission to use the device physical activity or motion is required for trip tracking. Please enable physical activity permissions from settings.'
-          )
-        }
-      } else {
-        Alert.alert(
-          'Background location permission needed!',
-          'Permission to use the device location in background is required for trip tracking. Please enable background location permissions from settings.'
-        )
-      }
-    } else {
-      Alert.alert(
-        'Location permission needed!',
-        'Permission to use the device location is required for trip tracking. Please enable location permissions from settings.'
-      )
-    }
-  }
-
-  const requestPermissionsForIos = async () => {
-    await request(PERMISSIONS.IOS.MOTION)
-
-    await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE)
-    let locationPermissionStatus = await check(
-      PERMISSIONS.IOS.LOCATION_WHEN_IN_USE
-    )
-
-    if (locationPermissionStatus === 'granted') {
-      await request(PERMISSIONS.IOS.LOCATION_ALWAYS)
-    } else {
-      openSettings()
-    }
-
-    await request(PERMISSIONS.IOS.MOTION)
-
-    let motionPermissionStatus = await check(PERMISSIONS.IOS.MOTION)
-    let locationPermissionState = await check(PERMISSIONS.IOS.LOCATION_ALWAYS)
-
-    if (
-      motionPermissionStatus !== 'granted' ||
-      locationPermissionState !== 'granted'
-    ) {
-      openSettings()
-    } else if (
-      motionPermissionStatus === 'granted' &&
-      locationPermissionState === 'granted'
-    ) {
-      console.log(
-        'calling  startTripTracking method as all permissions are given'
-      )
-      AutoBeacon.startTripTracking()
-    }
-  }
-
-  const getTripSummary = async () => {
-    setLoading(true)
+  const getTripSummary = useCallback(async () => {
+    setLoading(true);
 
     try {
       const [name, email, password] = await Promise.all([
         getItemAsync('loggedInUserName'),
         getItemAsync('loggedInUserEmail'),
         getItemAsync('loggedInUserPassword'),
-      ])
+      ]);
 
       if (name && email && password) {
         AutoBeacon.loginOrRegisterNewUser(
@@ -173,18 +173,18 @@ const TripSummaryScreen = ({ navigation }: any) => {
           ''
         )
           .then((result) => {
-            setLoading(false)
+            setLoading(false);
 
-            if (result == 'Failure') {
+            if (result === 'Failure') {
               Alert.alert(
                 'Registration Failed',
                 "Credentials Don't Match. Please try again with correct credentials."
-              )
-              return
+              );
+              return;
             }
 
             const parsedResult =
-              typeof result === 'string' ? JSON.parse(result) : result
+              typeof result === 'string' ? JSON.parse(result) : result;
 
             if (Platform.OS === 'android') {
               setTripSummary({
@@ -193,7 +193,7 @@ const TripSummaryScreen = ({ navigation }: any) => {
                 safeDrivingScore: parsedResult.safeDrivingScore,
                 drivingDistance: parsedResult.drivingDistance,
                 message: parsedResult.message,
-              })
+              });
             } else if (Platform.OS === 'ios') {
               setTripSummary({
                 response: parsedResult.response,
@@ -201,61 +201,61 @@ const TripSummaryScreen = ({ navigation }: any) => {
                 safeDrivingScore: parsedResult.safeDrivingScore,
                 drivingDistance: parsedResult.drivingDistance,
                 message: parsedResult.message,
-              })
+              });
             }
 
-            setTripSummaryCardVisibility(true)
+            setTripSummaryCardVisibility(true);
 
             if (Platform.OS === 'android') {
-              requestPermissionsForAndroid()
+              requestPermissionsForAndroid();
             } else if (Platform.OS === 'ios') {
-              requestPermissionsForIos()
+              requestPermissionsForIos();
             }
           })
           .catch(() => {
-            setLoading(false)
+            setLoading(false);
 
-            setTripSummaryCardVisibility(false)
+            setTripSummaryCardVisibility(false);
 
             Alert.alert(
               'ERROR!',
               'Some error occurred while fetching trip summary.'
-            )
-          })
+            );
+          });
       } else {
-        setLoading(false)
+        setLoading(false);
 
-        setTripSummaryCardVisibility(false)
+        setTripSummaryCardVisibility(false);
 
         Alert.alert(
           'ERROR!',
           'Missing stored user credentials. Please login again.'
-        )
+        );
       }
     } catch (error) {
-      setLoading(false)
+      setLoading(false);
 
-      setTripSummaryCardVisibility(false)
+      setTripSummaryCardVisibility(false);
 
-      Alert.alert('ERROR!', 'Error reading user data. Please login again.')
+      Alert.alert('ERROR!', 'Error reading user data. Please login again.');
     }
-  }
+  }, []);
 
   useEffect(() => {
-    getTripSummary()
-  }, [])
+    getTripSummary();
+  }, [getTripSummary]);
 
   if (loading) {
     return (
       <View style={styles.loaderContainer}>
         <View style={styles.loader}>
           <ActivityIndicator size="large" color={COLORS.accent} />
-          <Text style={{ marginTop: 16 }}>
+          <Text style={styles.loaderText}>
             Please wait... This may take a moment!
           </Text>
         </View>
       </View>
-    )
+    );
   }
 
   return (
@@ -263,9 +263,9 @@ const TripSummaryScreen = ({ navigation }: any) => {
       <ScrollView>
         {tripSummaryCardVisibility ? (
           <View>
-            <View style={{ marginHorizontal: 12, marginTop: 12 }}>
+            <View style={styles.summaryCardWrapper}>
               <View style={styles.summaryCard}>
-                <View style={{ flexDirection: 'row' }}>
+                <View style={styles.summaryCardRow}>
                   <View style={styles.summaryScoreSection}>
                     <Progress.Circle
                       size={112}
@@ -288,7 +288,7 @@ const TripSummaryScreen = ({ navigation }: any) => {
                       </Text>
                     </View>
                   </View>
-                  <View style={{ flex: 1, justifyContent: 'center' }}>
+                  <View style={styles.summaryInfoWrapper}>
                     <View style={styles.summaryInfoContainer}>
                       <Text style={styles.summaryInfoText}>
                         {tripSummary.drivingDistance.toFixed(2)} kms across{' '}
@@ -314,8 +314,8 @@ const TripSummaryScreen = ({ navigation }: any) => {
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -337,6 +337,13 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: COLORS.white,
   },
+  loaderText: {
+    marginTop: 16,
+  },
+  summaryCardWrapper: {
+    marginHorizontal: 12,
+    marginTop: 12,
+  },
   summaryCard: {
     width: '100%',
     height: 'auto',
@@ -344,6 +351,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 8,
     padding: 12,
+  },
+  summaryCardRow: {
+    flexDirection: 'row',
   },
   summaryScoreSection: {
     width: 128,
@@ -364,6 +374,10 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: '500',
     color: COLORS.black,
+  },
+  summaryInfoWrapper: {
+    flex: 1,
+    justifyContent: 'center',
   },
   summaryInfoContainer: {
     justifyContent: 'center',
@@ -394,6 +408,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: COLORS.white,
   },
-})
+});
 
-export default TripSummaryScreen
+export default TripSummaryScreen;

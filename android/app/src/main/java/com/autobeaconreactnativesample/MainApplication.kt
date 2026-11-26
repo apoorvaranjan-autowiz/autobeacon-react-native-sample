@@ -49,9 +49,6 @@ class MainApplication : Application(), ReactApplication {
       load()
     }
 
-    AutoBeaconRNModule.initSDK(applicationContext)
-    AutoBeaconRNModule.setAppReleaseMode(false)
-    AutoBeaconRNModule.enableSDK()
-    AutoBeaconRNModule.setDeviceLocation()
+    AutoBeaconRNModule.setContext(applicationContext)
   }
 }

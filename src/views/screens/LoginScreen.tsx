@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState } from 'react';
 import {
   Keyboard,
   KeyboardAvoidingView,
@@ -10,57 +10,57 @@ import {
   Platform,
   TouchableOpacity,
   ActivityIndicator,
-} from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import AsyncStorage from '@react-native-async-storage/async-storage'
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import COLORS from '../../const/colors'
-import Input from '../components/Input'
-import Logo from '../../assets/logo.svg'
+import COLORS from '../../const/colors';
+import Input from '../components/Input';
+import Logo from '../../assets/logo.svg';
 
 const LoginScreen = ({ navigation }: any) => {
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
 
-  const [inputs, setInputs] = useState({ name: '', email: '', password: '' })
-  const [errors, setErrors]: any = useState({})
+  const [inputs, setInputs] = useState({ name: '', email: '', password: '' });
+  const [errors, setErrors]: any = useState({});
 
   const handleOnChange = (text: any, input: string) => {
-    setInputs((prevState: any) => ({ ...prevState, [input]: text }))
-  }
+    setInputs((prevState: any) => ({ ...prevState, [input]: text }));
+  };
   const handleError = (errorMessage: any, input: string) => {
-    setErrors((prevState: any) => ({ ...prevState, [input]: errorMessage }))
-  }
+    setErrors((prevState: any) => ({ ...prevState, [input]: errorMessage }));
+  };
 
   const validate = () => {
-    Keyboard.dismiss()
+    Keyboard.dismiss();
 
-    let valid = true
+    let valid = true;
 
     if (!inputs.name) {
-      handleError('Please enter your name', 'name')
-      valid = false
+      handleError('Please enter your name', 'name');
+      valid = false;
     }
 
     if (!inputs.email) {
-      handleError('Please enter your email', 'email')
-      valid = false
+      handleError('Please enter your email', 'email');
+      valid = false;
     } else if (!/\S+@\S+\.\S+/.test(inputs.email)) {
-      handleError('Please enter a valid email', 'email')
-      valid = false
+      handleError('Please enter a valid email', 'email');
+      valid = false;
     }
 
     if (!inputs.password) {
-      handleError('Please enter your password', 'password')
-      valid = false
+      handleError('Please enter your password', 'password');
+      valid = false;
     }
 
     if (valid) {
-      register()
+      register();
     }
-  }
+  };
 
   const register = async () => {
-    setLoading(true)
+    setLoading(true);
 
     try {
       await AsyncStorage.setMany({
@@ -68,20 +68,20 @@ const LoginScreen = ({ navigation }: any) => {
         loggedInUserEmail: inputs.email,
         loggedInUserPassword: inputs.password,
         isUserLoggedIn: 'true',
-      })
+      });
 
-      setLoading(false)
+      setLoading(false);
 
       navigation.reset({
         index: 0,
         routes: [{ name: 'TripSummaryScreen' }],
-      })
+      });
     } catch (error) {
-      setLoading(false)
+      setLoading(false);
 
-      Alert.alert('ERROR!', 'Failed to save user data.')
+      Alert.alert('ERROR!', 'Failed to save user data.');
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -93,7 +93,7 @@ const LoginScreen = ({ navigation }: any) => {
           </Text>
         </View>
       </View>
-    )
+    );
   }
 
   return (
@@ -142,8 +142,8 @@ const LoginScreen = ({ navigation }: any) => {
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -193,6 +193,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: COLORS.white,
   },
-})
+});
 
-export default LoginScreen
+export default LoginScreen;
